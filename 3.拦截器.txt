@@ -1,0 +1,33 @@
+1. 增加拦截器
+@Bean
+public ShiroFilterFactoryBean getShiroFilterFactoryBean(@Qualifier("defaultWebSecurityManager") DefaultWebSecurityManager defaultWebSecurityManager) {
+        ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
+        shiroFilterFactoryBean.setSecurityManager(defaultWebSecurityManager);
+
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("/test", "authc");           //为 /test 增加拦截
+        shiroFilterFactoryBean.setFilterChainDefinitionMap(map);
+
+        return shiroFilterFactoryBean;
+}
+
+2. 拦截器属性
+anon：  无需认证即可访问
+authc： 必须认证才能访问
+user: 必须拥有记住我功能才能访问
+perms： 必须拥有某个资源的权限才能访问
+role： 拥有某个角色的权限才能访问
+
+3. 但存在请求被拦截时
+setLoginUrl(String path)      //跳转到指定页面
+	
+
+4. 自定义拦截器
+	a. JwtFilter 继承类 BasicHttpAuthenticationFilter
+		public class JwtFilter extends BasicHttpAuthenticationFilter
+	
+	b. 重写方法
+		isAccessAllowed(request, response, mappedValue)  进入过滤器时触发 return true 表示放行
+		isLoginAttempt(ServletRequest request, ServletResponse response)  判断是否要登录
+		executeLogin(request, response)  执行登录的方法   getSubject(request, response).login(jwtToken);
+		preHandle(request, response)   将要进入过滤器时触发

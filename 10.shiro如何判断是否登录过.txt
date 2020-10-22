@@ -1,0 +1,2 @@
+1. 源码分析
+	getSubject(request, response).login(jwtToken);  //一旦执行该方法 则登录成功

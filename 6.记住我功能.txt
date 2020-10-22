@@ -1,0 +1,33 @@
+功能使用解释
+类似于自动登录的功能，但在涉及权限操作时需要你再次登录
+一般搭配拦截器实现
+如： 过滤条件
+/delete=authc
+/**=user
+访问除了delete下的其他资源， 都可使用账号访问
+
+实现
+在登录前设置 
+subject.setRememberMe(true);
+
+基本原理
+类似于Jessionid一样， 但密码是保存在客户端的cookit上的 使用公钥和私钥比对
+
+自定义remember
+创建"rememberMeManager")
+@Bean(name = "rememberMeManager")
+    public RememberMeManager getRememberMeManager() {
+        CookieRememberMeManager rememberMeManager = new CookieRememberMeManager();
+
+        SimpleCookie simpleCookie = new SimpleCookie();
+        simpleCookie.setName("rememberMe");     //cookit名称
+        simpleCookie.setHttpOnly(true);       //防止被js脚本获取
+        simpleCookie.setMaxAge(604800);    //时间  单位s
+
+        rememberMeManager.setCookie(simpleCookie);
+
+        return rememberMeManager;
+    }
+
+注入defaultWebSecurityManager
+defaultWebSecurityManager.setRememberMeManager(rememberMeManager);

@@ -1,0 +1,60 @@
+功能
+为shiro加载用户， 角色，权限， 内部校验
+---------------------------------------------------------------
+自定义Realm
+public class UserRealm extends AuthorizingRealm {
+	
+	 @Override
+    public boolean supports(AuthenticationToken token){   //表示只检查该类token
+        return token instanceof UsernamePasswordToken;  
+    }
+
+	//查询权限信息
+	//但触发了shiro过滤器链时触发
+    @Override
+    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
+        return null;
+    }
+
+	//查询身份信息
+	// 当调用了 login() 时触发
+    @Override
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
+      	 UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken)authenticationToken;
+       	 //从usernamePasswordToken 获取用户信息 在数据库中进行比对
+
+
+	return new SimpleAuthenticationInfo("真正的用户名", "真正的密码", this.getName());
+    }
+}
+
+ps: doGetAuthenticationInfo 内部本质
+	调用 subject.login(token) 时，
+	内部源码调用token的 .getPrincipal() 获取用户名， .getCredentials() 获取密码  然后和返回值进行比较
+	
+---------------------------------------------------------------
+多个realm下只抛出AuthenticationExchange 异常解决
+	a.重写ModularRealmAuthenticator的doMultiRealmAuthentication方法
+		将
+		---------------------------------------------------------------
+			try {
+				info = realm.getAuthenticationInfo(token);
+			} catch (Throwable throwable) {
+				t = throwable;
+				if (log.isDebugEnabled()) {
+					String msg = "Realm [" + realm + "] threw an exception during a multi-realm authentication attempt:";
+					log.debug(msg, t);
+				}
+			}
+
+			aggregate = strategy.afterAttempt(realm, token, info, aggregate, t);
+		---------------------------------------------------------------
+		修改为
+			info = realm.getAuthenticationInfo(token);  //这里不进行异常捕获， 直接抛出
+			aggregate = strategy.afterAttempt(realm, token, info, aggregate, null); //这一步本来是将消息转给下一个realm， 如果抛出异常则没必要进行了
+			
+	b. 	设置 	Authenticator
+		 defaultWebSecurityManager.setAuthenticator(new CustomModularRealmAuthenticator());
+		 注意
+			设置realm的代码必须在设置Authenticator的后面 不然设置会失效
+			以及每个realm都必须设置supports方法， 不然只有第一个realm生效

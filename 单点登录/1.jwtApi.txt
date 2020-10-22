@@ -1,0 +1,29 @@
+1. 理解JWT组成
+	由  头部, 载体, 签名 加密后 拼接 . 构成 如 头部.载体.签名
+	头部： 标识加密算法和类型 如 {"typ":"JWT","alg":"HS256"}
+	载体： 存储的信息
+	签名： 类似于盐值
+	
+2. jar
+<dependency>
+	<groupId>com.auth0</groupId>
+	<artifactId>java-jwt</artifactId>
+	<version>3.7.0</version>
+</dependency>
+
+3. 常见api
+	a.生成jwt
+		JWT.create()  // 构造者模式
+		JWT.create().withClaim(name, value)  // 设置载体
+		JWT.create().withExpiresAt(data) // 设置过期时间  data = new Date(System.currentTimeMillis()+有效时间);
+		JWT.create().sign(algorithm); //设置加密算法  Algorithm algorithm = Algorithm.HMAC256(盐值, 字符串即可);
+	
+	b.验证jwt
+		JWTVerifier verifier = JWT.require(algorithm).withClaim(name, value).build() 生成一个验证jwt对象
+		verifier.verify(token)  // 该token为前端头消息获取的token 验证失败抛出异常
+			TokenExpiredException  token 过期l
+	 
+	c.解密jwt
+		DecodedJWT jwt = JWT.decode(token)  //获取解密的jwt
+		jwt.getClaim(name).asString() // 获取载体
+	

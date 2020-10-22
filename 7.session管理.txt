@@ -1,0 +1,31 @@
+1. 关闭session
+	a. 创建subjectFactory
+	public class StatelessDefaultSubjectFactory extends DefaultWebSubjectFactory {
+
+		@Override
+		public Subject createSubject(SubjectContext context) {
+			context.setSessionCreationEnabled(false);         //关闭session
+			return super.createSubject(context);
+		}
+	}
+	
+	b. 关闭session库 以及使用subjectFactory
+	@Bean
+	public DefaultWebSecurityManager defaultWebSecurityManager() {
+		DefaultWebSecurityManager defaultWebSecurityManager = new DefaultWebSecurityManager();
+		//关闭shiro自带的session
+		DefaultSubjectDAO subjectDAO = new DefaultSubjectDAO();
+		DefaultSessionStorageEvaluator defaultSessionStorageEvaluator = new DefaultSessionStorageEvaluator();
+		defaultSessionStorageEvaluator.setSessionStorageEnabled(false);
+		subjectDAO.setSessionStorageEvaluator(defaultSessionStorageEvaluator);
+		defaultWebSecurityManager.setSubjectDAO(subjectDAO);
+		defaultWebSecurityManager.setSubjectFactory(subjectFactory());  // subjectFactory（）方法返回StatelessDefaultSubjectFactory
+
+
+		return defaultWebSecurityManager;
+	}
+
+
+
+
+2. 使用springsession

@@ -1,0 +1,52 @@
+1.jar
+<dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-spring</artifactId>
+            <version>1.4.0</version>
+</dependency>
+
+2. 编写自定义 Realm
+public class UserRealm extends AuthorizingRealm {
+    @Override
+    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
+        return null;
+    }
+
+    @Override
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
+        return null;
+    }
+}
+
+3. 编写配置bean
+@Configuration
+public class ShiroConfig {
+
+    @Bean
+    public ShiroFilterFactoryBean getShiroFilterFactoryBean(@Qualifier("defaultWebSecurityManager") DefaultWebSecurityManager defaultWebSecurityManager) {
+        ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
+        shiroFilterFactoryBean.setSecurityManager(defaultWebSecurityManager);
+
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("/test", "authc");
+        shiroFilterFactoryBean.setFilterChainDefinitionMap(map);
+
+        return shiroFilterFactoryBean;
+    }
+
+    @Bean(name = "defaultWebSecurityManager")
+    public DefaultWebSecurityManager getDefaultWebSecurityManager(@Qualifier("userRealm") UserRealm userRealm) {
+        DefaultWebSecurityManager defaultWebSecurityManager = new DefaultWebSecurityManager();
+        defaultWebSecurityManager.setRealm(userRealm);
+
+        return defaultWebSecurityManager;
+    }
+
+    @Bean(name = "userRealm")
+    public UserRealm getUserRealm() {
+        return  new UserRealm();
+    }
+}
+
+4.使用
+Subject subject = SecurityUtils.getSubject();

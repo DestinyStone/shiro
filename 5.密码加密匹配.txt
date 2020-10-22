@@ -1,0 +1,40 @@
+加密方法
+Md5Hash(passwd, salt, iterator)     
+Sha256Hanh(passwd, salt, iterator)
+
+salt代表盐值， 会与passwd共同绑定进行加密操作
+
+转化为字符串
+.toBase64()
+.toString()
+
+使用
+String passwdHash = new Sha256Hash(passwd, "123", 100).toBase64();
+
+--------------------------------------------------------------------------------------
+登录时的对比
+声明加密对比器
+@Bean(name = "userRealm")
+    public UserRealm getUserRealm(@Qualifier("hashedCredentialsMatcher") HashedCredentialsMatcher hashedCredentialsMatcher) {
+        UserRealm userRealm = new UserRealm();
+        userRealm.setCredentialsMatcher(hashedCredentialsMatcher);
+        return userRealm;
+    }
+
+    @Bean(name = "hashedCredentialsMatcher")
+    public HashedCredentialsMatcher getHashedCredentialsMatcher() {
+        HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
+        hashedCredentialsMatcher.setHashAlgorithmName("sha-256");
+        hashedCredentialsMatcher.setHashIterations(100);
+        hashedCredentialsMatcher.setStoredCredentialsHexEncoded(false);
+
+        return hashedCredentialsMatcher;
+    }
+
+加入盐值
+ByteSource slat = ByteSource.Util.bytes("123");
+
+SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo(user,passwdHash, slat, this.getName());
+
+流程介绍
+	token中的密码会被HashedCredentialsMatcher, slat进行加密处理， 由加密后的字符串在和passwdHash进行比较

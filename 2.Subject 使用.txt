@@ -1,0 +1,32 @@
+1.获取subject对象
+Subject subject = SecurityUtils.getSubject();
+
+方法
+用户登录 login()
+用户登出 loginout()
+
+异常处理
+@ControllerAdvice
+public class ShrioExceptionHandler {
+
+    @ExceptionHandler(IncorrectCredentialsException.class)
+    @ResponseBody
+    public String incorrectCredentialsExceptionHandler() {
+
+        return "密码错误";
+    }
+}
+
+常见异常
+登录异常
+IncorrectCredentialsException      //密码错误
+UnknownAccountException      //未知账号  realm返回null时触发该异常
+ExcessiveAttemptsException  //登录超过时间
+LockedAccountException  //账号锁定
+ConcurrentAccessException  //多次登录       //可使用redis结合进行记录
+
+权限异常
+UnauthorizedException //没有访问权限
+UnauthenticatedException   //出现在未登录的时候访问了需要登录权限的路径
+
+AuthorizationException //授权异常, 与以上两个异常触发后出现

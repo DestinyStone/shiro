@@ -1,0 +1,23 @@
+开启配置
+@Bean
+@ConditionalOnMissingBean
+public DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator() {
+        DefaultAdvisorAutoProxyCreator defaultAAP = new DefaultAdvisorAutoProxyCreator();
+        defaultAAP.setProxyTargetClass(true);
+        return defaultAAP;
+}
+
+@Bean
+public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(@Qualifier("defaultWebSecurityManager") DefaultWebSecurityManager defaultWebSecurityManager){
+        System.out.println("开启了Shiro注解支持");
+        AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor = new AuthorizationAttributeSourceAdvisor();
+        authorizationAttributeSourceAdvisor.setSecurityManager(defaultWebSecurityManager);
+        return authorizationAttributeSourceAdvisor;
+}
+
+
+@RequiresAuthentication //方法都需要身份认证
+@RequiresRoles(value={"身份", "身份"}， logical=Logical.OR) //方法需要符合该身份
+@RequiresPermissions({"权限1", "权限2"}) //需要具有权限
+@RequiresUser  //记住我 或 已身份认证
+@RequiresGuest  //游客
