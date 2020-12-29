@@ -16,7 +16,7 @@
 		JWT.create()  // 构造者模式
 		JWT.create().withClaim(name, value)  // 设置载体
 		JWT.create().withExpiresAt(data) // 设置过期时间  data = new Date(System.currentTimeMillis()+有效时间);
-		JWT.create().sign(algorithm); //设置加密算法  Algorithm algorithm = Algorithm.HMAC256(盐值, 字符串即可);
+		JWT.create().sign(algorithm); //设置加密算法  Algorithm algorithm = Algorithm.HMAC256(盐值);
 	
 	b.验证jwt
 		JWTVerifier verifier = JWT.require(algorithm).withClaim(name, value).build() 生成一个验证jwt对象
